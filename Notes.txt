@@ -1,0 +1,81 @@
+
+Demo :
+
+Follow the step by steps commands.
+
+import following resoureces first.
+
+1. initialize terraform framwork : terraform init 
+
+2. validate the code : terraform validate
+
+3. import the existring resources. 
+
+# import resource group: 
+terraform import azurerm_resource_group.rg /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg
+
+# Import Vnet:
+terraform import azurerm_virtual_network.vnet /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg/providers/Microsoft.Network/virtualNetworks/dfci-ia-network-nonprod-e2-vnet
+
+# Import subnets
+terraform import azurerm_subnet.subnet1 /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg/providers/Microsoft.Network/virtualNetworks/dfci-ia-network-nonprod-e2-vnet/subnets/dfci-ia-pods-dev-e2-adlspe-sub 
+terraform import azurerm_subnet.subnet2 /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg/providers/Microsoft.Network/virtualNetworks/dfci-ia-network-nonprod-e2-vnet/subnets/dfci-ia-vsl8-subnet
+terraform import azurerm_subnet.subnet3 /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg/providers/Microsoft.Network/virtualNetworks/dfci-ia-network-nonprod-e2-vnet/subnets/dfci-ia-pods-dev-e2-databricksprivate-sub
+terraform import azurerm_subnet.subnet4 /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-network-nonprod-e2-1-rg/providers/Microsoft.Network/virtualNetworks/dfci-ia-network-nonprod-e2-vnet/subnets/dfci-ia-pods-dev-e2-databrickspublic-sub
+
+# import resourcegroup where we deploy: 
+terraform import azurerm_resource_group.rg1 /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-vsl8-nonprod-e2-rg
+
+# in this demo we are attaching the existsring fileshare to container. 
+
+# Import storage account : azaksfilesharetest
+terraform import azurerm_storage_account.azstact /subscriptions/7681cedf-df1c-4bf6-b11e-ba247bd8fdcb/resourceGroups/dfci-ia-vsl8-nonprod-e2-rg/providers/Microsoft.Storage/storageAccounts/azaksfilesharetest2
+
+# Import Fileshare : filesharemark1
+terraform import azurerm_storage_share.azfileshare https://azaksfilesharetest2.file.core.windows.net/filesharemark1
+
+4. check with terraform plan command
+
+5. apply terraform. 
+
+6.  Terraform destroy 
+
+Note : Terraform Destroy is not so easy here..  we have to remove imported resources from state first and then you can use terraform destroy command
+
+1. First List out the state 
+terraform state list
+
+2. use the rm command to remove terraorm attribute. 
+terraform state rm azurerm_resource_group.rg
+terraform state rm azurerm_virtual_network.vnet
+terraform state rm azurerm_subnet.subnet1
+terraform state rm azurerm_subnet.subnet2
+terraform state rm azurerm_subnet.subnet3
+terraform state rm azurerm_subnet.subnet4
+terraform state rm azurerm_resource_group.rg1
+
+3. Again for confirmation check the list and make sure that you have any imported resources. 
+   if it is present the remove it by using above commands. 
+
+4. Finally, you can use terraform dstroy command. 
+terraform destroy
+
+Alternative to Dstroy 
+
+Target the source which we need to distroy. using ( -target ) attribute. 
+e.g. terraform destroy -target azurerm_resource_group.rg
+
+
+
+-------------------------------------------------------------------------------------------------------------------------
+
+IMP Note: 
+
+First take a look at subnet : mfx-sub 
+need two service-endpoint attached: 
+- Microsoft.storage
+- Microsoft.ContainerRegistry 
+
+Then run : terraform apply 
+
+For terraform destroy use -target option 
